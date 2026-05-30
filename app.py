@@ -15,9 +15,11 @@ def create_app(config_class=Config):
     # Register blueprints
     from routes.compress import compress_bp
     from routes.health import health_bp
+    from routes.seo import seo_bp
 
     app.register_blueprint(compress_bp)
     app.register_blueprint(health_bp)
+    app.register_blueprint(seo_bp)
 
     # Error handlers
     @app.errorhandler(413)
@@ -28,6 +30,10 @@ def create_app(config_class=Config):
     @app.route("/")
     def index():
         return render_template("index.html")
+
+    @app.route("/upgrade")
+    def upgrade():
+        return render_template("upgrade.html")
 
     # Startup cleanup of any leftover files
     with app.app_context():

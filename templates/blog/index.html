@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}GIF Compression Guides — GifFit Blog{% endblock %}
+{% block description %}Guides on compressing animated GIFs for Discord, Slack, and the web. Discord emoji size, file size limits, and GIF compression explained.{% endblock %}
+{% block canonical %}https://giffit.io/blog/{% endblock %}
+{% block og_title %}GifFit Blog — GIF Compression Guides{% endblock %}
+{% block og_description %}Guides on compressing animated GIFs for Discord emoji, Discord uploads, and more.{% endblock %}
+{% block og_url %}https://giffit.io/blog/{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "GifFit Blog",
+  "url": "https://giffit.io/blog/",
+  "description": "GIF compression guides for Discord, Slack, and the web.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "GifFit",
+    "url": "https://giffit.io"
+  }
+}
+</script>
+{% endblock %}
+
+{% block body %}
+<header class="page-header" style="position:relative">
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour scheme">
+    <span id="theme-toggle-label">Graph Paper</span>
+  </button>
+  <h1>GifFit Blog</h1>
+  <p class="hero-sub">GIF compression guides.</p>
+</header>
+
+<main>
+  <nav class="blog-back"><a href="/">← Back to compressor</a></nav>
+
+  {% if posts %}
+  <div class="blog-list">
+    {% for post in posts %}
+    <article class="blog-list-item">
+      <a class="blog-list-title" href="/blog/{{ post.metadata.slug }}">{{ post.metadata.title }}</a>
+      <p class="blog-list-desc">{{ post.metadata.description }}</p>
+      <span class="blog-list-date">{{ post.metadata.date }}</span>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="blog-empty">No posts yet. Check back soon.</p>
+  {% endif %}
+</main>
+
+<footer>
+  <div class="title-block">
+    <span>Project: GifFit</span>
+    <span class="sep">·</span>
+    <span>Drawn by: System</span>
+    <span class="sep">·</span>
+    <span>Scale: 1:1 (bytes)</span>
+    <span class="sep">·</span>
+    <span>Sheet: 1 of 1</span>
+    <span class="sep">·</span>
+    <span>Status: Approved</span>
+  </div>
+  <p class="footer-note">Output material deleted from facility after 60 minutes.</p>
+</footer>
+{% endblock %}

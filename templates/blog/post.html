@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.metadata.title }} | GifFit{% endblock %}
+{% block description %}{{ post.metadata.description }}{% endblock %}
+{% block canonical %}https://giffit.io/blog/{{ post.metadata.slug }}{% endblock %}
+{% block og_title %}{{ post.metadata.title }}{% endblock %}
+{% block og_description %}{{ post.metadata.description }}{% endblock %}
+{% block og_url %}https://giffit.io/blog/{{ post.metadata.slug }}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ post.metadata.title }}",
+  "description": "{{ post.metadata.description }}",
+  "datePublished": "{{ post.metadata.date }}",
+  "dateModified": "{{ post.metadata.get('updated', post.metadata.date) }}",
+  "author": {
+    "@type": "Organization",
+    "name": "GifFit",
+    "url": "https://giffit.io"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "GifFit",
+    "url": "https://giffit.io"
+  }
+}
+</script>
+{% endblock %}
+
+{% block body %}
+<header class="page-header" style="position:relative">
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour scheme">
+    <span id="theme-toggle-label">Graph Paper</span>
+  </button>
+  <h1>GifFit Blog</h1>
+</header>
+
+<main>
+  <nav class="blog-back"><a href="/blog/">← All guides</a></nav>
+
+  <article class="blog-post">
+    <h1 class="blog-post-title">{{ post.metadata.title }}</h1>
+    <p class="blog-post-date">{{ post.metadata.date }}</p>
+    <div class="blog-post-body">
+      {{ post.metadata.html | safe }}
+    </div>
+  </article>
+
+  <div class="blog-cta">
+    <p class="blog-cta-text">Ready to compress?</p>
+    <a href="/" class="blog-cta-btn">Open GifFit →</a>
+  </div>
+</main>
+
+<footer>
+  <div class="title-block">
+    <span>Project: GifFit</span>
+    <span class="sep">·</span>
+    <span>Drawn by: System</span>
+    <span class="sep">·</span>
+    <span>Scale: 1:1 (bytes)</span>
+    <span class="sep">·</span>
+    <span>Sheet: 1 of 1</span>
+    <span class="sep">·</span>
+    <span>Status: Approved</span>
+  </div>
+  <p class="footer-note">Output material deleted from facility after 60 minutes.</p>
+</footer>
+{% endblock %}

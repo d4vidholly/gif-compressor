@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}GifFit — Free GIF Compressor for Discord{% endblock %}</title>
+  <meta name="description" content="{% block description %}Compress animated GIFs for Discord in one click. Free, no account required.{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}https://giffit.io/{% endblock %}">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{% block og_title %}GifFit — Make your GIF fit.{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}GIF compression for Discord. Two presets. One click.{% endblock %}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{% block og_url %}https://giffit.io{% endblock %}">
+  <meta property="og:image" content="https://giffit.io/static/og-image.png">
+
+  <!-- Schema markup — overridden per page -->
+  {% block schema %}{% endblock %}
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+
+  <!-- Theme init: prevents flash of wrong theme -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('giffit_theme');
+      if (t === 'light') document.documentElement.dataset.theme = 'light';
+    })();
+  </script>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  {% block body %}{% endblock %}
+
+  <!-- Theme toggle — runs on any page that has a #theme-toggle button -->
+  <script>
+    (function(){
+      var root = document.documentElement;
+      var btn  = document.getElementById('theme-toggle');
+      if (!btn) return;
+      var lbl  = document.getElementById('theme-toggle-label');
+      function sync() {
+        lbl.textContent = root.dataset.theme === 'light' ? 'Blueprint' : 'Graph Paper';
+      }
+      sync();
+      btn.addEventListener('click', function(){
+        var next = (root.dataset.theme || 'dark') === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        localStorage.setItem('giffit_theme', next);
+        sync();
+      });
+    })();
+  </script>
+
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>

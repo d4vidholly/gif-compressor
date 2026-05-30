@@ -1,24 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}GifFit — Free GIF Compressor for Discord, Slack &amp; Web{% endblock %}
-{% block description %}Compress animated GIFs to any size — Discord (8 MB), Discord emoji (256 KB), Slack emoji (128 KB). Free, no watermark, no account. Make your GIF fit.{% endblock %}
-{% block canonical %}https://giffit.io/{% endblock %}
-{% block og_title %}GifFit — Make your GIF fit.{% endblock %}
-{% block og_description %}Precision compression rig for animated GIFs. Discord, Slack, and web presets. Free, no watermark.{% endblock %}
-{% block og_url %}https://giffit.io{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}{{ page_description }}{% endblock %}
+{% block canonical %}{{ canonical }}{% endblock %}
+{% block og_title %}{{ page_title }}{% endblock %}
+{% block og_description %}{{ page_description }}{% endblock %}
+{% block og_url %}{{ canonical }}{% endblock %}
 
 {% block schema %}
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "GifFit",
-  "url": "https://giffit.io",
-  "description": "Free GIF compressor for Discord. Compress animated GIFs to Discord emoji size (256 KB, 128×128) or Discord upload size (8 MB). No account required.",
-  "applicationCategory": "UtilitiesApplication",
-  "operatingSystem": "Web",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-}
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "GifFit",
+    "url": "https://giffit.io",
+    "description": "{{ page_description }}",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {% for faq in faqs %}
+      {
+        "@type": "Question",
+        "name": "{{ faq.q }}",
+        "acceptedAnswer": { "@type": "Answer", "text": "{{ faq.a }}" }
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+]
 </script>
 {% endblock %}
 
@@ -27,29 +42,20 @@
     <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour scheme">
       <span id="theme-toggle-label">Graph Paper</span>
     </button>
-    <h1>Make your GIF fit.</h1>
-    <p class="hero-sub">
-      We built a precision compression rig.<br>
-      For your GIF.<br>
-      You're welcome.
-    </p>
+    <h1>{{ h1 }}</h1>
+    <p class="hero-sub">{{ h2 }}</p>
   </header>
 
   <main>
 
-    <!-- Mode selector -->
     <div class="mode-selector" role="tablist" aria-label="Compression mode">
       <button class="mode-btn active" data-mode="single" type="button" role="tab" aria-selected="true">Single GIF</button>
       <button class="mode-btn" data-mode="batch" type="button" role="tab" aria-selected="false">Batch Processing</button>
     </div>
 
-    <!-- Single GIF mode -->
     <div id="single-mode">
-
-      <!-- Main stage — all states live here -->
       <div class="stage" id="stage" data-state="idle">
 
-        <!-- Stage header: status group on the right -->
         <div class="stage-header">
           <div class="stage-status-group">
             <span class="stage-header-label" id="stage-header-label">Standby</span>
@@ -57,7 +63,6 @@
           </div>
         </div>
 
-        <!-- ═══ IDLE VIEW ═══ -->
         <div class="stage-view" id="view-idle">
           <input type="file" id="file-input" accept=".gif,image/gif" aria-label="Select GIF file" />
           <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -69,11 +74,8 @@
           <p class="drop-zone-hint">gif only · max 50 MB free · no hard hats required</p>
         </div>
 
-        <!-- ═══ READY VIEW ═══ -->
         <div class="stage-view" id="view-ready">
           <div class="ready-layout">
-
-            <!-- Thumbnail (click to replace) -->
             <div class="ready-file-col">
               <div class="ready-thumb-wrap" id="ready-thumb-wrap">
                 <img id="drop-preview" class="ready-thumb" src="" alt="GIF preview" />
@@ -83,8 +85,6 @@
               <span class="ready-filename" id="ready-filename"></span>
               <span class="ready-filesize" id="ready-filesize"></span>
             </div>
-
-            <!-- Preset + compress -->
             <div class="ready-controls-col">
               <span class="control-label">Tolerance spec</span>
               <span class="control-desc">Output must fit inside the selected limit.</span>
@@ -100,11 +100,9 @@
               </div>
               <button class="compress-btn" id="compress-btn" type="button" disabled>Initiate Compression</button>
             </div>
-
           </div>
         </div>
 
-        <!-- ═══ COMPRESSING VIEW ═══ -->
         <div class="stage-view" id="view-compressing">
           <div class="abort-row">
             <button class="abort-btn" id="cancel-btn" type="button">Abort</button>
@@ -139,27 +137,21 @@
           </div>
         </div>
 
-        <!-- ═══ COMPLETE FLASH ═══ -->
         <div class="stage-view" id="view-complete-flash">
           <span class="complete-flash-text">Complete.</span>
         </div>
 
-        <!-- ═══ DONE VIEW ═══ -->
         <div class="stage-view" id="view-done">
           <div class="result-split">
             <div class="result-half">
               <span class="result-half-label">v1</span>
-              <div class="result-half-img">
-                <img id="before-img" src="" alt="Original GIF" />
-              </div>
+              <div class="result-half-img"><img id="before-img" src="" alt="Original GIF" /></div>
               <span class="result-half-stat" id="before-size"></span>
             </div>
             <div class="result-divider"></div>
             <div class="result-half">
               <span class="result-half-label result-half-label--v2">v2 <span class="compat-badge">Discord compatible</span></span>
-              <div class="result-half-img">
-                <img id="after-img" src="" alt="Compressed GIF" />
-              </div>
+              <div class="result-half-img"><img id="after-img" src="" alt="Compressed GIF" /></div>
               <span class="result-half-stat result-half-stat--accent" id="after-size"></span>
             </div>
           </div>
@@ -180,12 +172,10 @@
           </div>
         </div>
 
-        <!-- Printer display — always visible at base of stage -->
         <div class="printer-display">
           <span class="printer-text" id="printer-text">No material loaded.</span><span class="printer-dots" id="printer-dots"></span><span class="printer-cursor" id="printer-cursor"></span>
         </div>
 
-        <!-- Stage progress bar — shown during compression, 8 segments -->
         <div class="stage-progress" id="stage-progress" role="progressbar" aria-label="Compression progress">
           <div class="stage-progress-seg" id="seg-0"></div>
           <div class="stage-progress-seg" id="seg-1"></div>
@@ -197,16 +187,13 @@
           <div class="stage-progress-seg" id="seg-7"></div>
         </div>
 
-        <!-- Drag overlay — appears over all views on dragover -->
         <div class="drop-overlay" id="drop-overlay" aria-hidden="true">
           <span>Release to load material.</span>
         </div>
 
-      </div><!-- /stage -->
+      </div>
+    </div>
 
-    </div><!-- /single-mode -->
-
-    <!-- Batch GIFs mode — locked -->
     <div id="batch-mode" hidden>
       <div class="batch-zone">
         <svg class="batch-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -218,6 +205,24 @@
         <a href="/upgrade" class="upgrade-btn">Upgrade to GifFit Pro</a>
       </div>
     </div>
+
+    {% if faqs %}
+    <section class="landing-faq">
+      <h2 class="landing-faq-title">Frequently asked</h2>
+      {% for faq in faqs %}
+      <div class="landing-faq-item">
+        <h3 class="landing-faq-q">{{ faq.q }}</h3>
+        <p class="landing-faq-a">{{ faq.a }}</p>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if blog_slug %}
+    <p class="landing-blog-link">
+      <a href="/blog/{{ blog_slug }}">{{ blog_title }}</a>
+    </p>
+    {% endif %}
 
   </main>
 
@@ -239,4 +244,11 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+<script>
+  (function(){
+    var preset = "{{ preset }}";
+    var btn = document.querySelector('[data-preset="' + preset + '"]');
+    if (btn) btn.click();
+  })();
+</script>
 {% endblock %}

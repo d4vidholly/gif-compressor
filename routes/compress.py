@@ -22,7 +22,7 @@ def _write_status(path, data):
 
 def _compression_worker(session_dir, original_path, compressed_path,
                          target_bytes, target_dimensions,
-                         original_size, orig_w, orig_h):
+                         original_size, orig_w, orig_h, original_frame_count):
     status_path = os.path.join(session_dir, "status.json")
 
     def _progress(pct, step):
@@ -53,6 +53,7 @@ def _compression_worker(session_dir, original_path, compressed_path,
                 "session_id": session_id,
                 "original_size": original_size,
                 "original_dimensions": [orig_w, orig_h],
+                "original_frame_count": original_frame_count,
                 "compressed_size": compressed_size,
                 "compressed_dimensions": [out_w, out_h],
                 "reduction_pct": reduction_pct,
@@ -60,6 +61,8 @@ def _compression_worker(session_dir, original_path, compressed_path,
                 "warning_reason": result.get("warning_reason", ""),
                 "engine": result.get("engine", "pillow"),
                 "download_url": f"/api/download/{session_id}/compressed.gif",
+                "final_palette": result.get("final_palette"),
+                "final_frame_count": result.get("final_frame_count"),
             },
         })
     except Exception as e:
@@ -93,15 +96,19 @@ def compress():
 
     with Image.open(original_path) as img:
         orig_w, orig_h = img.size
+        original_frame_count = getattr(img, 'n_frames', 1)
 
     status_path = os.path.join(session_dir, "status.json")
-    _write_status(status_path, {"state": "processing", "progress": 0, "step": "Starting"})
+    _write_status(status_path, {
+        "state": "processing", "progress": 0, "step": "Starting",
+        "original_frame_count": original_frame_count,
+    })
 
     thread = threading.Thread(
         target=_compression_worker,
         args=(session_dir, original_path, compressed_path,
               target_bytes, target_dimensions,
-              original_size, orig_w, orig_h),
+              original_size, orig_w, orig_h, original_frame_count),
         daemon=True,
     )
     thread.start()

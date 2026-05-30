@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GifFit Pro — Batch GIF Compression</title>
+  <meta name="description" content="Upgrade to GifFit Pro for batch GIF compression, API access, and priority processing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <style>
+    .upgrade-header { margin-bottom: 2.5rem; }
+    .upgrade-header h2 { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .upgrade-header p { color: var(--gray-600); font-size: 0.95rem; }
+
+    .pricing-card {
+      border: 1.5px solid var(--black);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+    }
+    .pricing-card .price {
+      font-size: 1.75rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem;
+    }
+    .pricing-card .price-sub {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      margin-bottom: 1.5rem;
+    }
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .feature-list li {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+    .feature-list li::before {
+      content: "—";
+      color: var(--gray-400);
+      flex-shrink: 0;
+    }
+
+    .waitlist-section { margin-top: 2rem; }
+    .waitlist-section h3 {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 0.75rem;
+    }
+    .waitlist-form { display: flex; gap: 0.5rem; }
+    .waitlist-input {
+      flex: 1;
+      padding: 0.65rem 0.9rem;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .waitlist-input:focus { border-color: var(--black); }
+    .waitlist-btn {
+      padding: 0.65rem 1.25rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity var(--transition);
+      white-space: nowrap;
+    }
+    .waitlist-btn:hover { opacity: 0.85; }
+    .waitlist-confirm {
+      display: none;
+      font-size: 0.875rem;
+      color: #1a7a4a;
+      margin-top: 0.75rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      text-decoration: none;
+      margin-bottom: 2rem;
+    }
+    .back-link:hover { color: var(--black); }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <h1>GifFit Pro</h1>
+    <p>Batch GIF compression for Discord servers and power users.</p>
+  </header>
+
+  <main>
+    <a href="/" class="back-link">&larr; Back to compressor</a>
+
+    <div class="upgrade-header">
+      <h2>What's included</h2>
+      <p>Everything in the free tier, plus:</p>
+    </div>
+
+    <div class="pricing-card">
+      <div class="price">£4.99 <span style="font-size:1rem;font-weight:400;">/ month</span></div>
+      <div class="price-sub">or £39.99 / year &nbsp;·&nbsp; save 33%</div>
+      <ul class="feature-list">
+        <li>Batch compress up to 50 GIFs per run</li>
+        <li>Files up to 150 MB each (free tier: 50 MB)</li>
+        <li>All results downloaded as a single ZIP</li>
+        <li>API access with your key — automate compression</li>
+        <li>Priority processing queue</li>
+        <li>No file deletion — results kept for 24 hours</li>
+      </ul>
+    </div>
+
+    <div class="waitlist-section">
+      <h3>Join the waitlist</h3>
+      <form class="waitlist-form" id="waitlist-form">
+        <input
+          class="waitlist-input"
+          id="waitlist-email"
+          type="email"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+        />
+        <button class="waitlist-btn" type="submit">Notify me</button>
+      </form>
+      <p class="waitlist-confirm" id="waitlist-confirm">
+        You're on the list — we'll email you when Pro launches.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <p>GifFit is free for single-file compression. Pro launches when batch processing is ready.</p>
+  </footer>
+
+  <script>
+    document.getElementById('waitlist-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      this.style.display = 'none';
+      document.getElementById('waitlist-confirm').style.display = 'block';
+    });
+  </script>
+
+</body>
+</html>

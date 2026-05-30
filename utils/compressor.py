@@ -91,20 +91,22 @@ def _probe(frames, durations, palette, loop, frame_cb=None):
 
 
 def _binary_search(frames, durations, loop, target_bytes, floor_data, probe_fn=None):
-    """Return bytes of the highest-palette encode that fits within target_bytes."""
+    """Return (bytes, palette) of the highest-palette encode that fits within target_bytes."""
     if probe_fn is None:
         probe_fn = _probe
     best = floor_data
+    best_palette = _PALETTE_MIN
     lo, hi = _PALETTE_MIN + 1, 255
     while lo <= hi:
         mid = (lo + hi) // 2
         size, data = probe_fn(frames, durations, mid, loop)
         if size <= target_bytes:
             best = data
+            best_palette = mid
             lo = mid + 1
         else:
             hi = mid - 1
-    return best
+    return best, best_palette
 
 
 def compress_gif(input_path, output_path, target_bytes, target_dimensions=None, progress_cb=None):
@@ -115,10 +117,6 @@ def compress_gif(input_path, output_path, target_bytes, target_dimensions=None, 
 
     try:
         original_size = os.path.getsize(input_path)
-        if original_size <= target_bytes:
-            shutil.copy2(input_path, output_path)
-            return {"success": True, "error": None, "quality_warning": False,
-                    "warning_reason": "", "engine": "pillow", "output_dimensions": None}
 
         _report(5, "Loading")
         img = Image.open(input_path)
@@ -130,6 +128,8 @@ def compress_gif(input_path, output_path, target_bytes, target_dimensions=None, 
 
         _report(10, "Preparing")
         rgba_source = _to_rgba(original_frames)
+        # Always resize when target_dimensions is set — 128×128 is a Discord
+        # requirement, not an optimisation. Must happen before any size check.
         if target_dimensions:
             rgba_source = _resize_frames(rgba_source, target_dimensions)
 
@@ -158,45 +158,65 @@ def compress_gif(input_path, output_path, target_bytes, target_dimensions=None, 
             return result
 
         best_data = None
+        best_palette = None
+        best_frame_count = None
 
-        for scale in _SCALES:
-            scaled_rgba = _scale_frames(rgba_source, scale) if scale < 1.0 else rgba_source
-            base_dur = list(original_durations)
+        if original_size <= target_bytes and not target_dimensions:
+            # File already fits the ceiling — apply base optimisation pass
+            # (palette=128, LZW optimise) rather than copying unchanged.
+            # target_bytes is a ceiling, not a trigger.
+            _, best_data = _probing(rgba_source, list(original_durations), 128, loop)
+            best_palette = 128
+            best_frame_count = len(rgba_source)
+        else:
+            # File exceeds target, or a mandatory resize was applied — run the
+            # full compression loop to find the best quality that fits.
+            for scale in _SCALES:
+                scaled_rgba = _scale_frames(rgba_source, scale) if scale < 1.0 else rgba_source
+                base_dur = list(original_durations)
 
-            size, data = _probing(scaled_rgba, base_dur, 256, loop)
-            if size <= target_bytes:
-                best_data = data
-                break
-
-            floor_size, floor_data = _probing(scaled_rgba, base_dur, _PALETTE_MIN, loop)
-            if floor_size <= target_bytes:
-                best_data = _binary_search(scaled_rgba, base_dur, loop, target_bytes, floor_data, probe_fn=_probing)
-                break
-
-            needed_skip = int(floor_size / target_bytes) + 1
-            candidate_skips = [s for s in _SKIPS if s >= needed_skip]
-
-            for skip in candidate_skips:
-                frames, durations = _drop_frames(scaled_rgba, original_durations, skip)
-
-                size, data = _probing(frames, durations, 256, loop)
+                size, data = _probing(scaled_rgba, base_dur, 256, loop)
                 if size <= target_bytes:
                     best_data = data
+                    best_palette = 256
+                    best_frame_count = len(scaled_rgba)
                     break
 
-                floor_size, floor_data = _probing(frames, durations, _PALETTE_MIN, loop)
-                if floor_size > target_bytes:
-                    continue
+                floor_size, floor_data = _probing(scaled_rgba, base_dur, _PALETTE_MIN, loop)
+                if floor_size <= target_bytes:
+                    best_data, best_palette = _binary_search(scaled_rgba, base_dur, loop, target_bytes, floor_data, probe_fn=_probing)
+                    best_frame_count = len(scaled_rgba)
+                    break
 
-                best_data = _binary_search(frames, durations, loop, target_bytes, floor_data, probe_fn=_probing)
+                needed_skip = int(floor_size / target_bytes) + 1
+                candidate_skips = [s for s in _SKIPS if s >= needed_skip]
+
+                for skip in candidate_skips:
+                    frames, durations = _drop_frames(scaled_rgba, original_durations, skip)
+
+                    size, data = _probing(frames, durations, 256, loop)
+                    if size <= target_bytes:
+                        best_data = data
+                        best_palette = 256
+                        best_frame_count = len(frames)
+                        break
+
+                    floor_size, floor_data = _probing(frames, durations, _PALETTE_MIN, loop)
+                    if floor_size > target_bytes:
+                        continue
+
+                    best_data, best_palette = _binary_search(frames, durations, loop, target_bytes, floor_data, probe_fn=_probing)
+                    best_frame_count = len(frames)
+                    break
+                else:
+                    continue
                 break
-            else:
-                continue
-            break
 
         if best_data is None or len(best_data) >= original_size:
             shutil.copy2(input_path, output_path)
             out_dims = None
+            if best_frame_count is None:
+                best_frame_count = len(rgba_source)
         else:
             with open(output_path, "wb") as f:
                 f.write(best_data)
@@ -212,6 +232,8 @@ def compress_gif(input_path, output_path, target_bytes, target_dimensions=None, 
             "warning_reason": "Could not fully reach target size — best effort applied." if quality_warning else "",
             "engine": "pillow",
             "output_dimensions": out_dims,
+            "final_palette": best_palette,
+            "final_frame_count": best_frame_count,
         }
 
     except Exception as e:

@@ -1,3 +1,5 @@
+> Full implementation spec: see SEO_ARCHITECTURE.md
+
 # GifFit — SEO Strategy
 
 ---
