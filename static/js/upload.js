@@ -380,6 +380,17 @@
     });
   });
 
+  // ─── Batch email form ───────────────────────────────────────────────────────
+  const batchForm    = document.getElementById('batch-form');
+  const batchConfirm = document.getElementById('batch-confirm');
+  if (batchForm) {
+    batchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      batchForm.style.display = 'none';
+      batchConfirm.classList.add('visible');
+    });
+  }
+
   // ─── Preset buttons ─────────────────────────────────────────────────────────
   function updateCompressBtn() {
     compressBtn.disabled = !(currentFile && activePreset);
