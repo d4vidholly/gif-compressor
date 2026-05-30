@@ -207,7 +207,12 @@
       panelRightSub.textContent  = stageEntry.next.sub;
       panelRightStat.textContent = '';
 
-      panelLeft.style.animation  = `panel-slide-in ${HALF}ms ease-out backwards`;
+      // Reset to base (opacity:0 from cascade) before starting slide-in,
+      // preventing the entrance-animation fill (opacity:1) from bleeding through.
+      panelLeft.style.animation  = 'none';
+      panelRight.style.animation = 'none';
+      void panelLeft.offsetWidth; // force reflow to commit opacity:0
+      panelLeft.style.animation  = `panel-slide-in ${HALF}ms ease-out`;
       panelRight.style.animation = `panel-slide-in-faded ${HALF}ms ease-out both`;
       flickerIn(panelLeftName);
       flickerIn(panelRightName);
