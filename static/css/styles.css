@@ -653,8 +653,13 @@ main {
 }
 
 @keyframes panel-slide-out {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(-18px); }
+  from { opacity: 1;    transform: translateX(0); }
+  to   { opacity: 0;    transform: translateX(-18px); }
+}
+
+@keyframes panel-slide-out-faded {
+  from { opacity: 0.35; transform: translateX(0); }
+  to   { opacity: 0;    transform: translateX(-18px); }
 }
 
 @keyframes panel-slide-in {

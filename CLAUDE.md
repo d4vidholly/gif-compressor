@@ -44,13 +44,15 @@ No test suite exists. Test manually via curl. Watch for stale Flask processes on
 
 - **Async via threading**: compression runs in a daemon thread; status is stored in a file (`status.json`) so it works correctly across Gunicorn workers without a shared store.
 
-- **Rate limiter singleton** lives in `extensions.py` and is applied via `@limiter.limit(lambda: current_app.config["..."])` decorators directly on route functions — not on blueprints. Using a lambda is required to read limits from config at request time. Applying `limiter.limit()` to a blueprint object silently registers nothing in Flask-Limiter 3.7.0.
-
-- **429 message detection** in `app.py`: Flask-Limiter formats the description as `"3 per 1 minute"`, so the check is `"minute" in description` (not `"per minute"`).
+- **Rate limiting removed** — all `@limiter.limit()` decorators stripped. Flask-Limiter package stays installed but is not initialised.
 
 - **Pillow 12.x constraint:** `Image.Quantize.FASTOCTREE` must be used for RGBA frames — MEDIANCUT is not allowed. Frames must be converted to RGBA before quantizing.
 
 - **Compressor algorithm** (`utils/compressor.py`): for each scale in `[1.0, 0.75, 0.5, 0.25]`, does two probes at skip=1 (ceiling at palette=256, floor at `palette_min`). If the floor fits, binary-searches for best quality. If not, uses the measured floor size to estimate the minimum frame-skip needed (`needed_skip = floor_size / target + 1`) and jumps directly there — skipping intermediate skip levels that can't possibly work. The `for...else: continue; break` pattern at both loop levels is load-bearing.
+
+- **`_binary_search` return value** changed to `(data, palette)` tuple — callers must unpack as `best_data, best_palette = _binary_search(...)`.
+
+- **Compressor result fields**: `compress_gif()` returns `final_palette` (int, colours used) and `final_frame_count` (int, frames in output). `original_frame_count` is captured via `img.n_frames` in the compress route and included in every `status.json` write (initial + done result).
 
 - **Target dimensions**: `discord_emoji` preset passes `(128, 128)` as `target_dimensions` to `compress_gif`, which centre-crops to square and resizes before the compression loop runs.
 
@@ -64,8 +66,6 @@ No test suite exists. Test manually via curl. Watch for stale Flask processes on
 
 | Key | Purpose |
 |---|---|
-| `RATELIMIT_COMPRESS_BURST` | Burst rate limit string passed to Flask-Limiter |
-| `RATELIMIT_COMPRESS_HOURLY` | Hourly rate limit string passed to Flask-Limiter |
 | `PRESETS` | Dict of `{preset_name: {max_bytes, dimensions}}` — currently discord + discord_emoji only |
 | `MAX_UPLOAD_BYTES` | Validated before processing (separate from Flask's `MAX_CONTENT_LENGTH`) |
 | `FILE_MAX_AGE_MINUTES` | How long uploaded sessions survive |
@@ -74,4 +74,5 @@ No test suite exists. Test manually via curl. Watch for stale Flask processes on
 
 - **Python 3.14** — no binary wheels for older Pillow; must use Pillow 12.2.0+.
 - **Gunicorn is Linux-only** — `Procfile` uses gunicorn for production (Railway/Render/Fly.io); dev uses Flask's built-in server.
-- **No git repo** — this directory is not currently tracked in git.
+- **OneDrive conflict** — `uploads/` is inside OneDrive. Use direct file writes; `os.replace` (atomic rename) raises "Access is denied" during OneDrive sync.
+- **Git repo**: https://github.com/d4vidholly/gif-compressor (public, master branch).

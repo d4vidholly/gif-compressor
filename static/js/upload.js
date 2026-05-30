@@ -195,9 +195,8 @@
     panelLeftStamp.classList.add('visible');
 
     const HALF = 160;
-    [panelLeft, panelRight].forEach(el => {
-      el.style.animation = `panel-slide-out ${HALF}ms ease-in forwards`;
-    });
+    panelLeft.style.animation  = `panel-slide-out ${HALF}ms ease-in forwards`;
+    panelRight.style.animation = `panel-slide-out-faded ${HALF}ms ease-in forwards`;
 
     setTimeout(() => {
       panelLeftStamp.classList.remove('visible');
@@ -208,8 +207,8 @@
       panelRightSub.textContent  = stageEntry.next.sub;
       panelRightStat.textContent = '';
 
-      panelLeft.style.animation  = `panel-slide-in ${HALF}ms ease-out`;
-      panelRight.style.animation = `panel-slide-in-faded ${HALF}ms ease-out forwards`;
+      panelLeft.style.animation  = `panel-slide-in ${HALF}ms ease-out backwards`;
+      panelRight.style.animation = `panel-slide-in-faded ${HALF}ms ease-out both`;
       flickerIn(panelLeftName);
       flickerIn(panelRightName);
 
