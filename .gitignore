@@ -1,0 +1,22 @@
+uploads/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+venv/
+*.egg-info/
+dist/
+.DS_Store
+
+# Test / scratch files in project root
+*.gif
+*.log
+session_notes.md
+server*.log
+
+# Editor
+.vscode/
+
+# Claude Code session data
+.claude/

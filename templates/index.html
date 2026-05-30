@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GIF Compressor — Compress animated GIFs online, free</title>
+  <meta name="description" content="Compress animated GIFs for Discord, Slack, and the web. No ads, no watermarks. Files processed on our server and deleted after 60 minutes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+
+  <header class="page-header">
+    <h1>GIF Compressor</h1>
+    <p>Reduce GIF file size for Discord, Slack, and the web. Free, no watermark.</p>
+  </header>
+
+  <main>
+
+    <!-- Mode selector -->
+    <div class="mode-selector" role="tablist" aria-label="Compression mode">
+      <button class="mode-btn active" data-mode="single" type="button" role="tab" aria-selected="true">Single GIF</button>
+      <button class="mode-btn" data-mode="batch" type="button" role="tab" aria-selected="false">Batch GIFs</button>
+    </div>
+
+    <!-- Single GIF mode -->
+    <div id="single-mode">
+
+      <!-- Drop zone -->
+      <div class="drop-zone" id="drop-zone" role="button" aria-label="Drop a GIF here or click to browse">
+        <input type="file" id="file-input" accept=".gif,image/gif" aria-label="Select GIF file" />
+        <img id="drop-preview" class="drop-preview" src="" alt="GIF preview" />
+        <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+          <polyline points="16 8 12 4 8 8" />
+          <line x1="12" y1="4" x2="12" y2="16" />
+        </svg>
+        <p class="drop-zone-label">
+          <strong>Drop a GIF here</strong> or click to browse<br />
+          <span class="muted">Maximum 50 MB</span>
+        </p>
+      </div>
+
+      <!-- Controls (shown after file selected) -->
+      <div class="controls" id="controls" aria-live="polite">
+
+        <!-- Platform presets -->
+        <div class="control-row">
+          <span class="control-label">Platform preset</span>
+          <div class="preset-buttons" role="group" aria-label="Platform presets">
+            <button class="preset-btn" data-preset="discord_emoji" data-max-bytes="262144" type="button">
+              Discord Emoji
+              <span class="preset-sub">256 KB · 128×128 px</span>
+            </button>
+            <button class="preset-btn" data-preset="discord" data-max-bytes="8388608" type="button">
+              Discord Upload
+              <span class="preset-sub">8 MB · original size</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Compress button -->
+        <button class="compress-btn" id="compress-btn" type="button" disabled>
+          Compress
+        </button>
+
+        <!-- Progress bar -->
+        <div class="progress-wrap" id="progress-wrap" role="progressbar" aria-live="polite">
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-footer">
+            <span class="progress-eta" id="progress-eta"></span>
+            <button class="cancel-btn" id="cancel-btn" type="button">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-bar" id="status-bar" role="status" aria-live="polite"></div>
+
+      </div>
+
+      <!-- Before / After comparison -->
+      <div class="comparison" id="comparison" aria-label="Before and after comparison">
+        <div class="comparison-pane">
+          <div class="pane-header">
+            <span class="pane-label">Before</span>
+            <span class="pane-size" id="before-size"></span>
+          </div>
+          <div class="pane-img-wrap">
+            <img id="before-img" src="" alt="Original GIF" />
+          </div>
+        </div>
+        <div class="comparison-pane">
+          <div class="pane-header">
+            <span class="pane-label">After</span>
+            <span class="pane-size reduced" id="after-size"></span>
+          </div>
+          <div class="pane-img-wrap">
+            <img id="after-img" src="" alt="Compressed GIF" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Quality warning -->
+      <div class="quality-warning" id="quality-warning">
+        <span id="quality-warning-text"></span>
+      </div>
+
+      <!-- Download bar -->
+      <div class="download-bar" id="download-bar">
+        <span class="reduction-badge" id="reduction-badge"></span>
+        <div class="download-actions">
+          <button class="copy-btn" id="copy-btn" type="button">Copy</button>
+          <a class="download-btn" id="download-btn" href="#" download="compressed.gif">Download</a>
+        </div>
+      </div>
+
+    </div><!-- /single-mode -->
+
+    <!-- Batch GIFs mode — locked, pro feature -->
+    <div id="batch-mode" hidden>
+      <div class="batch-zone">
+        <svg class="batch-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <p class="batch-zone-title">Batch Processing</p>
+        <p class="batch-zone-desc">Drop up to 50 GIFs — up to 150 MB each.<br>All compressed to spec in one run, downloaded as a ZIP.</p>
+        <a href="/upgrade" class="upgrade-btn">Upgrade to GifFit Pro</a>
+      </div>
+    </div><!-- /batch-mode -->
+
+  </main>
+
+  <footer>
+    <p>Files are deleted from our server after 60 minutes. Single file at a time on the free tier.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>
